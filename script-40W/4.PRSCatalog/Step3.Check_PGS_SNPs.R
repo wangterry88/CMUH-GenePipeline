@@ -36,8 +36,6 @@ if (Data_type == "1"){
     print("Your selected data type is: 40W data (default)")
 }
 
-##############################
-
 PGS_SNP_info<-fread(selected_data_type,sep="\t",header= T)
 
 search_list<-LIST
@@ -46,14 +44,11 @@ PGS_SNP_info_select<-PGS_SNP_info[grepl(search_list,PGS_SNP_info$PGSID),]
 
 cat('\n')
 cat('\n')
-
 print(PGS_SNP_info_select)
+cat('\n')
 
-cat('\n')
-cat('\n')
-cat('\n')
-cat('Datail Information of PGS SNPs is in the following dirertory:')
-cat('\n')
-cat('/new_storage_1/bioinfo/PGS-Catlog/PGS-SNP-info-table/')
+fwrite(PGS_SNP_info_select,"./output/Related_PGSID_List_SNPinfo.txt",sep="\t",col.names=T)
+
+cat('Step3 Done......')
 cat('\n')
 cat('\n')

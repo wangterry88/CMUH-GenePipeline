@@ -17,10 +17,12 @@ library(casebase)
 
 ###############################################################
 
-cat(prompt="Input your PGS result table (Full directory)(Ex: ./output/PRS_of_interest/Example.txt): ")
+cat(prompt="Input your PGS result table (Full directory)")
+cat('\n')
+cat("(Ex: ./output/PRS_of_interest/Example.txt):" )
 Input_result<-readLines(con="stdin",1)
 
-cat(prompt="Please input your matching ratio:(1-10) ")
+cat(prompt="Please input your matching ratio (1-10):")
 Matching_Ratio_input<-readLines(con="stdin",1)
 
 if (as.numeric(Matching_Ratio_input) > 10){
@@ -182,7 +184,8 @@ for (j in 1:length(PGS_NUM)){
               geom_vline(aes(xintercept=low10_line), colour="#BB0000", linetype="dashed")+
               geom_text(aes(x = high10_line,y=0.4,label = "High 10% PRS"))+
               geom_text(aes(x = low10_line,y=0.4,label = "Low 10% PRS"))+
-              geom_density(alpha=0.4, position = 'identity')
+              geom_density(alpha=0.4, position = 'identity')+
+              scale_fill_manual( values = c("#00BFC4", "#F8766D"))
 
   ggsave(dist_plot,file=tmp_dist_plot,height = 8,width  = 8)
 
