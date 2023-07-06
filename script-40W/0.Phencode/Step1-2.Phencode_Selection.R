@@ -9,7 +9,7 @@ library(transport)
 
 cat('\n')
 cat('\n')
-cat(prompt="Input your phenotype name, with upper case and lower case (Ex: Dementia|dementia): ")
+cat(prompt="Input your phenotype name: ")
 cat('\n')
 phenotype_input<-readLines(con="stdin",1)
 
