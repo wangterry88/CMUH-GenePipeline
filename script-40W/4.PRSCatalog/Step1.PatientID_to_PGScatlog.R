@@ -6,18 +6,12 @@ setwd("./")
 
 library(data.table)
 library(dplyr)
-#library(ggplot2)
-#library(pROC)
-#library(broom)
-#library(gtsummary)
 
 ###############################################################
 
 cat(prompt="Input your patient list (Full directory): ")
 Input_list<-readLines(con="stdin",1)
 
-cat(prompt="Input your phenotype name(Ex: Stroke,Dementia): ")
-phenotype<-readLines(con="stdin",1)
 
 cat(prompt="Output PGS table name (Short Name): ")
 Output_name<-readLines(con="stdin",1)
@@ -32,7 +26,7 @@ Input_table<-fread(Input_list,sep="\t",header=T)
 
 # Selecting columns
 pat_name<-colnames(Input_table)[1]
-pheno_name<-phenotype
+pheno_name<-colnames(Input_table)[2]
 Input<-Input_table %>% select(all_of(pat_name),all_of(pheno_name))
 colnames(Input)<-c("PatientID","Pheno")
 
@@ -107,16 +101,15 @@ if (code_type == "1"){
 }
 
 cat('\n')
-cat(prompt="Please input your interested Disease Name: ")
-cat('\n')
-interest_list<-readLines(con="stdin",1)
+cat(prompt="Input your interest phenotype name (Ex: Stroke,Dementia): ")
+phenotype<-readLines(con="stdin",1)
 
 if (code_type == "1") {
-    PGS_related_df<-CodeBook[grepl(interest_list,CodeBook$Trait),]
+    PGS_related_df<-CodeBook[grepl(phenotype,CodeBook$Trait),]
 }else if(code_type == "2") {
-    PGS_related_df<-CodeBook[grepl(interest_list,CodeBook$Phecode),]
+    PGS_related_df<-CodeBook[grepl(phenotype,CodeBook$Phecode),]
 }else {
-    PGS_related_df<-CodeBook[grepl(interest_list,CodeBook$Trait),]
+    PGS_related_df<-CodeBook[grepl(phenotype,CodeBook$Trait),]
 }
 
 cat('\n')
