@@ -25,9 +25,12 @@ phenotype_input<-readLines(con="stdin",1)
 
 # Search data for input information
 
+mapping_pattern <-paste0('^',phenotype_input,'$',collapse='')
+
+
 phenotype_search_result<-
     CodeBook %>% 
-        filter(if_any(everything(), ~ grepl(phenotype_input, .)))
+        filter(if_any(everything(), ~ grepl(mapping_pattern, .)))
 
 result_AIC_code<-unique(phenotype_search_result$phecode_AIC)
 
