@@ -4,88 +4,60 @@ setwd("./")
 
 library(data.table)
 library(dplyr)
-library(ggplot2)
-library(transport)
 
 cat('\n')
 cat('\n')
-cat(prompt="Input your phenotype name: ")
-cat('\n')
-phenotype_input<-readLines(con="stdin",1)
-
-##### Read data #####
-
-phencode_table<-fread("./data/TPMI_phencode_pheno.txt",sep="\t",header = T)
-
-####### Perpare columns ######
-
-input<-phenotype_input
-PatID<-c("PatientID")
-
-input_list<-paste(PatID,input,sep="|")
-disease_input<-subset(phencode_table,select = grepl(input_list, names(phencode_table)))
-
-####### Count Number of selected disease ######
-
-disease_num_table<-
-    disease_input %>%
-    summarize_if(is.numeric, sum, na.rm=TRUE)
-
-#disease_num_table<-disease_num_table[,-1]
-
-##### Print search result on the screen ######
-
-show<-as.data.frame(t(disease_num_table)) # transpose the table
-show<-tibble::rownames_to_column(show, "Disease_name") # make the row name to first column
-colnames(show)[2]<-"Num_Case" # Set column name of 2nd column
-
-###### Remove the PatientID row #####
-
-show_final<-show[-1,] # Remove the PatientID row 
-fwrite(show_final,'./output/Select_count.txt',sep="\t",col.names = T)
-
-cat('\n')
-cat('\n')
-cat('Selected disease results:')
+cat('Preparing required data...... ')
 cat('\n')
 cat('\n')
 
-print(show_final,row.names = F)
+CodeBook<-fread("./data/Phencode/AIC_Phencode_ICD9_ICD10_codebook.txt",sep="\t",header=T)
+TPMI_40W_phecode_table<-fread("./data/Phencode/AIC_Phencode_TPMI-40W_table.txt",sep="\t",header=T)
 
 cat('\n')
-cat('\n')
-cat('Selected disease list is output in:  ./output/Select_count.txt')
-
+cat('Required data loading successfully.....!')
 cat('\n')
 cat('\n')
 cat(prompt="Select ONE of your disease name from the search output: ")
 cat('\n')
 
-phenotype_select<-readLines(con="stdin",1)
+phenotype_input<-readLines(con="stdin",1)
 
-####### Perpare select columns ######
+# Search data for input information
 
-select<-phenotype_select
-PatID<-c("PatientID")
+phenotype_search_result<-
+    CodeBook %>% 
+        filter(if_any(everything(), ~ grepl(phenotype_input, .)))
 
-select_list<-append(PatID,select)
+result_AIC_code<-unique(phenotype_search_result$phecode_AIC)
 
-####### Get the selected disease dataframe ######
+# Make selction columns
 
-disease_select<-select(phencode_table,one_of(select_list))
+select_col<-append(c("PatientID"),result_AIC_code)
 
-####### Get the final selected disease dataframe ######
+phecode_select_table<-TPMI_40W_phecode_table %>% select(one_of(select_col))
 
-disease_select_final<-na.omit(disease_select)
-disease_select_final[,2]<-disease_select_final[,2]+1 # For GWAS or PRS analysis
+# Convert coluum name with mapping table 
 
-fwrite(disease_select_final,'./output/Select_list.txt',sep="\t",col.names = T)
+colnames(phecode_select_table)[2]<-CodeBook$Phenotype_Name[match(colnames(phecode_select_table)[2],CodeBook$phecode_AIC)]
+
+# Get selection name column
+
+select_name<-colnames(phecode_select_table)[2]
+
+# Remove rows with -9
+
+select_output<-phecode_select_table %>%
+  filter(if_any(select_name, ~ !(.x %in% c("-9"))))
+
+
+fwrite(select_output,'./output/Phencode_selected_list.txt',sep="\t",col.names = T)
 
 
 ####### Print the Case Control Number of selected data #######
 
-ctrl<-filter(disease_select_final, disease_select_final[,2] == "1")  
-case<-filter(disease_select_final, disease_select_final[,2] == "2")  
+ctrl<-filter(select_output, select_output[,2] == "1")  
+case<-filter(select_output, select_output[,2] == "2")  
 
 cat('\n')
 cat('\n')
@@ -93,8 +65,6 @@ cat('Number of Control with user select is:',nrow(ctrl))
 cat('\n')
 cat('Number of Case with user select is:',nrow(case))
 cat('\n')
-cat('Selected disease list is output in:  ./output/Select_list.txt')
-cat('\n')
-cat('\n')
+cat('Selected disease list is output in:  ./output/Phencode_selected_list.txt')
 cat('\n')
 cat('\n')

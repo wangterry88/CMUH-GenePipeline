@@ -6,35 +6,33 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(transport)
+library(tibble)
 
+cat('\n')
+cat('\n')
+cat('Preparing required data...... ')
+cat('\n')
+cat('\n')
+
+CodeBook<-fread("./data/Phencode/AIC_Phencode_ICD9_ICD10_codebook.txt",sep="\t",header=T)
+TPMI_40W_phecode_table<-fread("./data/Phencode/AIC_Phencode_TPMI-40W_table.txt",sep="\t",header=T)
+
+cat('\n')
+cat('Required data loading successfully.....!')
 cat('\n')
 cat('\n')
 cat(prompt="Input your ICD name, with ICD9 or ICD10 (Ex: 434.91|G45.4): ")
 cat('\n')
+
 ICD_input<-readLines(con="stdin",1)
 
-##### Read ICD data #####
-
-ICD_table<-fread("./data/Phencode_ICD9_ICD10.txt",sep="\t",header = T)
-Phencode_def<-fread("./data/Phecode_definitions.txt",sep="\t",header = T)
-phencode_table<-fread("./data/TPMI_phencode_pheno.txt",sep="\t",header = T)
-
-##### search Phenotype Name by ICD codes ######
-
 search_result<-
-    ICD_table %>% 
-    filter(if_any(everything(), ~ grepl(ICD_input, .)))
+    CodeBook %>% 
+        filter(if_any(everything(), ~ grepl(ICD_input, .)))
 
-##### Get search Phenotype Name Results ######
+search_result_clean <- search_result %>% distinct()
 
-search_result_unique<-distinct(search_result,Phenotype_Name,.keep_all = F)
-
-
-##### Get search Phenotype Name with exclusion critiria ######
-
-search_result_critiria<-left_join(search_result_unique,Phencode_def,by=c("Phenotype_Name"="Phenotype"))
-
-fwrite(search_result_critiria,'./output/ICD_phenotype_list.txt',sep="\t",col.names = T)
+fwrite(search_result_clean,'./output/ICD_phenotype_list.txt',sep="\t",col.names = T)
 
 ##### Print the Results ######
 
@@ -43,7 +41,7 @@ cat('\n')
 cat('Your input ICD codes related Phenotype names is:')
 cat('\n')
 cat('\n')
-print(search_result_unique)
+print(unique(search_result_clean$Phenotype_Name))
 cat('\n')
 cat('\n')
 cat('Your ICD codes related Phenotype critira is output at: ./output/ICD_phenotype_list.txt')
@@ -53,27 +51,27 @@ cat('\n')
 
 #### Print all sample number of the result list
 
-ICD_to_phencode_list<-search_result_unique$Phenotype_Name
 
-disease_input<- phencode_table %>% select(contains(ICD_to_phencode_list))
+phecode_AIC_list<-unique(search_result_clean$phecode_AIC)
 
-disease_num_table<-
- disease_input %>%
- summarize_if(is.numeric, sum, na.rm=TRUE)
+Grep_col_table<-TPMI_40W_phecode_table %>% select(one_of(phecode_AIC_list))
 
-##### Print search result on the screen ######
+df.col.name<-CodeBook$Phenotype_Name[match(names(Grep_col_table), CodeBook$phecode_AIC)]
 
-show<-as.data.frame(t(disease_num_table)) # transpose the table
-show<-tibble::rownames_to_column(show, "Disease_name") # make the row name to first column
-colnames(show)[2]<-"Num_Case" # Set column name of 2nd column
+colnames(Grep_col_table)<-df.col.name
 
-###### Remove the PatientID row #####
+Grep_col_table_CaseNo<-as.data.frame(colSums(Grep_col_table=='2'))
 
-show_final<-show[-1,] # Remove the PatientID row
-print(show_final)
+colnames(Grep_col_table_CaseNo)<-"Case_Num"
+
+Grep_col_table_CaseNo <- tibble::rownames_to_column(Grep_col_table_CaseNo, "Disease_Name")
+
+print(Grep_col_table_CaseNo)
 
 output_tmp<-paste0('./output/Phenotype_CaseNum.txt',collapse="")
-fwrite(show_final,output_tmp,sep="\t",col.names = T)
+
+fwrite(Grep_col_table_CaseNo,output_tmp,sep="\t",col.names = T)
+
 cat('\n')
 cat('\n')
 cat('Please Copy the Disease Name, and go to next step....')
