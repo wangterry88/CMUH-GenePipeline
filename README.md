@@ -1,13 +1,13 @@
-# CMUH-GenePipeline
+## CMUH-GenePipeline
 1. A comprehensive Linux-based package for SNP array analysis in CMUH
 
 2. Demo of Pipeline is in `Demo.md`
 
-# To run this package: (Main pipeline)
+## To run this package: (Main pipeline)
 
 `sh ./script/Run_GenePipeline.sh`
 
-# 5 Gene Analysis mode of this package
+## 5 Gene Analysis mode of this package
 
 The following sub-pipline can also be execute separately:
 
