@@ -9,7 +9,7 @@
 
 # 5 Gene Analysis mode of this package
 
-## The following sub-pipline can also be execute separately
+The following sub-pipline can also be execute separately:
 
 0. Phencode Patient Phenotype selection
 
