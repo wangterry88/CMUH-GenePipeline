@@ -1,7 +1,7 @@
 # CMUH-GenePipeline
-A comprehensive Linux-based package for SNP array analysis in CMUH
+1. A comprehensive Linux-based package for SNP array analysis in CMUH
 
-## Demo of Pipeline is in `Demo.md`
+2. Demo of Pipeline is in `Demo.md`
 
 # To run this package: (Main pipeline)
 
