@@ -1,5 +1,7 @@
 # CMUH-GenePipeline Demo 
 
+## Demo: Phencode selection + PGS Catalog Analysis
+
 ## Step1: Input Mode selection
 
 ![image](https://github.com/wangterry88/CMUH-GenePipeline/assets/49865575/0d54703e-8f39-4b32-9ceb-02ebbcbc9a7f)
