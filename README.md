@@ -10,7 +10,7 @@
 
 `sh ./script/Run_GenePipeline.sh`
 
-## 5 Gene Analysis mode of this package
+### 5 Gene Analysis mode of this package
 
 The following sub-pipline can also be execute separately:
 
