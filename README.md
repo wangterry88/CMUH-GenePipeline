@@ -3,6 +3,10 @@
 
 2. Demo of Pipeline is in `Demo.md`
 
+3.
+   30W version: CMUH TPMI 300,000 sample pipeline
+   40W version: CMUH TPMI 400,000 sample pipeline
+  
 ## To run this package: (Main pipeline)
 
 `sh ./script/Run_GenePipeline.sh`
