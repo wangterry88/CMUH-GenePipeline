@@ -4,7 +4,7 @@
 
 2. Demo of Pipeline is in `Demo.md`
 
-3. Version: 30W version (300,000 samples) / 40W version (400,000 samples)
+3. Version: 30W version (300,000 samples pipeline) / 40W version (400,000 samples pipeline)
   
 ## To run this package: (Main pipeline)
 
