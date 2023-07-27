@@ -4,11 +4,7 @@
 
 2. Demo of Pipeline is in `Demo.md`
 
-3.
-
-(A) 30W version: CMUH TPMI 300,000 sample pipeline
-
-(B) 40W version: CMUH TPMI 400,000 sample pipeline
+3. Version: 30W version (300,000 samples) / 40W version (400,000 samples)
   
 ## To run this package: (Main pipeline)
 
