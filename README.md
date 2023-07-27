@@ -7,6 +7,7 @@
 3.
 
 (A) 30W version: CMUH TPMI 300,000 sample pipeline
+
 (B) 40W version: CMUH TPMI 400,000 sample pipeline
   
 ## To run this package: (Main pipeline)
