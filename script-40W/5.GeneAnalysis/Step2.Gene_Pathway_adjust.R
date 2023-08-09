@@ -38,3 +38,8 @@ Pahtway_adj$Padj_BH<-p.adjust(Pahtway_adj_P,method="BH",Pahtway_adj_N)
 # Pahtway result adjust output
 Pahtway_adj_tmp<-paste0("./output/Result/",GWAS_name,"/",GWAS_name,".Pahtway.result.adj.txt")
 fwrite(Pahtway_adj,Pahtway_adj_tmp,sep="\t",col.names=T)
+
+# For network plot output
+Pahtway_adj_network_tmp<-paste0("./output/Result/",GWAS_name,"/Network_plot/",GWAS_name,".Pahtway.result.adj.network.txt")
+Pahtway_adj_network<-Pahtway_adj[,c("FULL_NAME","P","Padj_BH")]
+fwrite(Pahtway_adj_network,Pahtway_adj_network_tmp,sep="\t",col.names=T)

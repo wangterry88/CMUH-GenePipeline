@@ -13,6 +13,7 @@ GWAS_NAME=${PROJECT}
 
 mkdir ./output/process/${GWAS_NAME}
 mkdir ./output/Result/${GWAS_NAME}
+mkdir ./output/Result/${GWAS_NAME}/Network_plot
 
 awk 'NR>1 {print "chr"$1":"$2"\t"$1"\t"$2}' "${GWAS_PATH}" > ./output/process/${GWAS_NAME}/${GWAS_NAME}.location.txt
 
@@ -39,13 +40,12 @@ awk '{print "chr"$1":"$2"\t"$15"\t"$9}' "${GWAS_PATH}"|sed 's/chr#CHROM:POS/SNP/
 
 ./tools/magma \
 --gene-results ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Gene.result.genes.raw \
---set-annot ./data/GeneAnalysis/pathway/v2023.1/msigdb.v2023.1.Hs.symbols.gmt \
+--set-annot ./data/GeneAnalysis/pathway/v2023.1/c5.all.v2023.1.Hs.symbols.gmt \
 --out ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Pathway
 
 # Make Pathway result
 
 awk 'NR>4 {print $8"\t"$7"\t"$3"\t"$4"\t"$5"\t"$6}' ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Pathway.gsa.out > ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Pathway.result.txt
-
 
 # Make Pathway plot
 
@@ -54,3 +54,7 @@ Rscript ./script/5.GeneAnalysis/Step1.Pathway_plot.R ${GWAS_NAME}
 # Make Gene Pathway adjust result
 
 Rscript ./script/5.GeneAnalysis/Step2.Gene_Pathway_adjust.R ${GWAS_NAME}
+
+# Make gmt data to network plot data
+
+cp ./data/GeneAnalysis/pathway/v2023.1/c5.all.v2023.1.Hs.symbols.gmt ./output/Result/${GWAS_NAME}/Network_plot/c5.all.Pathway-Network-Plot.gmt
