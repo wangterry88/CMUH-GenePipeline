@@ -36,11 +36,72 @@ awk '{print "chr"$1":"$2"\t"$15"\t"$9}' "${GWAS_PATH}"|sed 's/chr#CHROM:POS/SNP/
 --gene-model snp-wise=mean \
 --out ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Gene.result
 
+# Select the Geneset for analysis
+
+echo "Please specify the Geneset for analysis"
+echo ""
+echo "[1] C1: positional gene sets             [2] C2: curated gene sets"
+echo "[3] C3: regulatory target gene sets      [4] C4: computational gene sets"
+echo "[5] C5: ontology gene sets               [6] C6: oncogenic signature gene sets"
+echo "[7] C7: immunologic signature gene sets  [8] C8: cell type signature gene sets"
+echo "[9] H: hallmark gene sets                [0] All gene sets "
+
+read PATHWAY_SELECT
+
+case ${PATHWAY_SELECT} in
+    "0")
+      PATHWAY_FILE="msigdb.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [All gene sets]"
+      ;;
+    "1")
+      PATHWAY_FILE="c1.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C1: positional gene sets]"
+      ;;
+    "2")
+      PATHWAY_FILE="c2.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C2: curated gene sets]"
+      ;;
+    "3")
+      PATHWAY_FILE="c3.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C3: regulatory target gene sets]"
+      ;;
+    "4")
+      PATHWAY_FILE="c4.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C4: computational gene sets]"
+      ;;
+    "5")
+      PATHWAY_FILE="c5.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C5: ontology gene sets]"
+      ;;
+    "6")
+      PATHWAY_FILE="c6.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C6: oncogenic signature gene sets]"
+      ;;
+    "7")
+      PATHWAY_FILE="c7.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C7: immunologic signature gene sets]"
+      ;;
+    "8")
+      PATHWAY_FILE="c8.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [C8: cell type signature gene sets]"
+      ;;
+    "9")
+      PATHWAY_FILE="h.all.v2023.1.Hs.symbols.gmt"
+      echo "Your selected pathway is: [H: hallmark gene sets]"
+      ;;
+    *)
+      PATHWAY_FILE="msigdb.v2023.1.Hs.symbols.gmt"
+      echo "Please input [0 ~ 9] to select Gene set file"
+      echo "Use default pathway: [All gene sets]"
+      exit 1 
+      ;;
+esac
+
 # Pathway Analysis
 
 ./tools/magma \
 --gene-results ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Gene.result.genes.raw \
---set-annot ./data/GeneAnalysis/pathway/v2023.1/c5.all.v2023.1.Hs.symbols.gmt \
+--set-annot ./data/GeneAnalysis/pathway/v2023.1/${PATHWAY_FILE} \
 --out ./output/Result/${GWAS_NAME}/${GWAS_NAME}.Pathway
 
 # Make Pathway result
@@ -57,4 +118,4 @@ Rscript ./script/5.GeneAnalysis/Step2.Gene_Pathway_adjust.R ${GWAS_NAME}
 
 # Make gmt data to network plot data
 
-cp ./data/GeneAnalysis/pathway/v2023.1/c5.all.v2023.1.Hs.symbols.gmt ./output/Result/${GWAS_NAME}/Network_plot/c5.all.Pathway-Network-Plot.gmt
+cp ./data/GeneAnalysis/pathway/v2023.1/${PATHWAY_FILE} ./output/Result/${GWAS_NAME}/Network_plot/Pathway-Network-Plot.gmt
