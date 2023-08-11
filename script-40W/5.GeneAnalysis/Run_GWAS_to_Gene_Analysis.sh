@@ -45,7 +45,7 @@ echo "[1] C1: positional gene sets             [2] C2: curated gene sets"
 echo "[3] C3: regulatory target gene sets      [4] C4: computational gene sets"
 echo "[5] C5: ontology gene sets               [6] C6: oncogenic signature gene sets"
 echo "[7] C7: immunologic signature gene sets  [8] C8: cell type signature gene sets"
-echo "[9] H: hallmark gene sets                [0] All gene sets "
+echo "[9] H: hallmark gene sets                [0] All gene sets [Default]"
 
 read PATHWAY_SELECT
 
@@ -94,7 +94,6 @@ case ${PATHWAY_SELECT} in
       PATHWAY_FILE="msigdb.v2023.1.Hs.symbols.gmt"
       echo "Please input [0 ~ 9] to select Gene set file"
       echo "Use default pathway: [All gene sets]"
-      exit 1 
       ;;
 esac
 
