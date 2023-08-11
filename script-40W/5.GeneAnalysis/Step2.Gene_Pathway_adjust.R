@@ -41,6 +41,6 @@ fwrite(Pahtway_adj,Pahtway_adj_tmp,sep="\t",col.names=T)
 
 # For network plot output
 Pahtway_adj_network_tmp<-paste0("./output/Result/",GWAS_name,"/Network_plot/",GWAS_name,".Pahtway.result.adj.network.txt")
-Pahtway_adj_network<-Pahtway_adj[,c("FULL_NAME","P","Padj_BH")]
+Pahtway_adj_network<-Pahtway_adj[,c("FULL_NAME","P","P")]
 Pahtway_adj_network<-Pahtway_adj_network[order(Pahtway_adj_network$P,decreasing=FALSE),]
 fwrite(Pahtway_adj_network,Pahtway_adj_network_tmp,sep="\t",col.names=T)

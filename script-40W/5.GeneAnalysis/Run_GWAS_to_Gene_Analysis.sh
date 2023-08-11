@@ -38,6 +38,7 @@ awk '{print "chr"$1":"$2"\t"$15"\t"$9}' "${GWAS_PATH}"|sed 's/chr#CHROM:POS/SNP/
 
 # Select the Geneset for analysis
 
+echo ""
 echo "Please specify the Geneset for analysis"
 echo ""
 echo "[1] C1: positional gene sets             [2] C2: curated gene sets"
