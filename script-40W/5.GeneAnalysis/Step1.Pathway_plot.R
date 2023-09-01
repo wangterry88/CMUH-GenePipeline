@@ -6,10 +6,12 @@ library(ggplot2)
 
 args <- commandArgs(trailingOnly = TRUE)
 GWAS_name <-args[1]
+Pathway_name <-args[2]
 
-result_tmp<-paste0('./output/Result/',GWAS_name,'/',GWAS_name,'.Pathway.result.txt')
-
+result_tmp<-paste0('./output/Result/',GWAS_name,'/Pathways/',Pathway_name,'/',GWAS_name,'.Pathway.result.txt')
 result<-fread(result_tmp,sep="\t")
+
+colnames(result)[1]<-c("FULL_NAME")
 
 # Get plot data
 result_sort<-result[order(result$P),]
@@ -22,7 +24,7 @@ result_plot$FULL_NAME<-as.factor(result_plot$FULL_NAME)
 
 # Plot output
 
-tmp_plot<-paste0('./output/Result/',GWAS_name,'/',GWAS_name,'.Pathway.result.plot.png',collapse = '')
+tmp_plot<-paste0('./output/Result/',GWAS_name,'/Pathways/',Pathway_name,'/',GWAS_name,'.Pathway.result.plot.png',collapse = '')
 
 plot=result_plot %>% 
   ggplot(aes(reorder(FULL_NAME, `-log10P`), `-log10P`)) + 
