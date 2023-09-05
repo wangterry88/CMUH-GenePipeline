@@ -41,5 +41,5 @@ The following sub-pipline can also be execute separately:
 6. SNP Analysis
 
 `Rscript ./script/6.SNPAnalysis/Step1.GWAS_to_SNPlist.R`
-``
+
 `sh ./script/6.SNPAnalysis/Step2.Bfile_to_vcf_table1.sh`
