@@ -18,7 +18,9 @@ Rscript ./script/Prepare/Package_Installation.R
 
 echo "Please specify [Input data mode] or [Perform Gene-Based Pathway Analysis]:"
 echo ""
-echo "[1] User input  [2] Phencode selection  [3] Gene-Based Pathway Analysis [Other] Exit the Program"
+echo "[1] User input  [2] Phencode selection  [3] Gene-Based Pathway Analysis [4] SNP Analysis"
+echo ""
+echo "[Other] Exit the Program"
 read MODE
 
 if [ $MODE -eq 1 ]; then
@@ -108,7 +110,7 @@ elif [ $MODE -eq 2 ]; then
     echo ""
         sh ./script/0.Phencode/Run_TPMI_Phencode_Pipeline.sh
         echo ""
-        echo "Your Phecode selection list is in: ./output/Select_list.txt"
+        echo "Your Phecode selection list is in: ./output/Phencode_selected_list.txt"
     echo ""
     echo "########## Using Phencode list for analysis  ###########"    
     echo ""
@@ -191,6 +193,18 @@ elif [ $MODE -eq 3 ]; then
         mkdir ./output/Result/
         sh ./script/5.GeneAnalysis/Run_GWAS_to_Gene_Analysis.sh ${PROJECT}
     echo " Gene-Based Pathway Analysis... Done"
+    echo ""
+        mv ./output/ ./${PROJECT}
+        mv ./${PROJECT} ./Result
+    echo "Result is in ./Result/${PROJECT}......Bye Bye!"
+    
+elif [ $MODE -eq 4 ]; then
+    echo ""
+    echo "########## Perform SNP Analysis ###########"
+    echo ""
+         Rscript ./script/6.SNPAnalysis/Step1.GWAS_to_SNPlist.R
+         sh ./script/6.SNPAnalysis/Step2.Bfile_to_vcf_table1.sh
+    echo " SNP Analysis... Done"
     echo ""
         mv ./output/ ./${PROJECT}
         mv ./${PROJECT} ./Result
