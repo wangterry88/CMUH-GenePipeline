@@ -58,5 +58,5 @@ cat('\n')
 tmp_no_chip=paste0('./output/',Output_name,'-no-chip.txt',collapse = '')
 tmp_have_chip=paste0('./output/',Output_name,'-have-chip.txt',collapse = '')
 
-fwrite(no_chip,tmp_no_chip,sep="\t",col.names = T)
-fwrite(have_chip,tmp_have_chip, sep="\t",col.names = T)
+fwrite(no_chip,tmp_no_chip,sep="\t",col.names = T,bom=T)
+fwrite(have_chip,tmp_have_chip, sep="\t",col.names = T,bom=T)

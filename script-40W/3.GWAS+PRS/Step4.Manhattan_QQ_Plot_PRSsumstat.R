@@ -39,10 +39,12 @@ manhattan_data_nosex<-subset(manhattan_data,manhattan_data$CHR<23)
 
 ### Output PRS-ready summary data
 
-PRS_Sig_data=subset(manhattan_data_nosex,manhattan_data_nosex$P<0.05)
+#PRS_Sig_data=subset(manhattan_data_nosex,manhattan_data_nosex$P<0.05)
+
+PRS_Sig_data=manhattan_data_nosex
 PRS_Sig_data_unipue=distinct(PRS_Sig_data,SNP,.keep_all = T)
 
-tmp_PRS=paste0('./GWAS/',PRS_OUT,'.PRS.Sig-0.05.txt',collapse = '')
+tmp_PRS=paste0('./GWAS/',PRS_OUT,'.PRS.txt',collapse = '')
 fwrite(PRS_Sig_data_unipue,tmp_PRS,sep="\t",col.names=T)
 
 
@@ -58,7 +60,7 @@ tmp_manhattan=paste0('./GWAS/plot/',PLOT_OUT,'.manhattan.png',collapse = '')
 
 png(file=tmp_manhattan, width = 2000,height = 1000,pointsize = 18)
 par(cex=1.2)
-color_set <-c("#8DA0CB","#E78AC3","#A6D854","#FFD92F","#E5C494","#66C2A5","#FC8D62")
+color_set <-c("#8DA0CB","#FC8D62")
 manhattan(manhattan_data_nosex,
           col = color_set,
           suggestiveline = -log10(1e-05),

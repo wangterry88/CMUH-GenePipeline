@@ -2,6 +2,8 @@ setwd("./")
 
 #args = commandArgs(trailingOnly=TRUE)
 
+system('free -m')
+
 ############ Required Packages ######################
 
 library(data.table)

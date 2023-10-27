@@ -7,9 +7,11 @@ cat('\n')
 PRS_RESULT<-readLines(con="stdin",1)
 
 cat(prompt="Input PRS Phenotype data (Full directory): ")
+cat('\n')
 PHENO<-readLines(con="stdin",1)
 
 cat(prompt="Output PRS plot file name (Short Name): ")
+cat('\n')
 PLOT_OUT<-readLines(con="stdin",1)
 
 
@@ -23,11 +25,15 @@ library(broom)
 library(gtsummary)
 library(MatchIt)
 library(transport)
+library(survival)
+library(casebase)
 
 #############################
 
 PRS.result.prsice<-fread(PRS_RESULT)
 CMUH.pheno<-fread(PHENO,sep="\t",header=T)
+PCA<-fread("./data/PCA/TPMI_40W_PC1-4.txt",sep="\t",header=T)
+
 
 head(PRS.result.prsice)
 head(CMUH.pheno)
@@ -212,7 +218,10 @@ cat('Wasserstein distance is:',wasserstein1d(case$SCORE,ctrl$SCORE),sep = "\t", 
 # Ready GLM PRS Model Data
 
 PRS.pheno.model=Prsice.pheno.model
-colnames(PRS.pheno.model)<-c("FID","IID","SCORE","Sex","Age","Pheno")
+
+PRS.pheno.model<-inner_join(PRS.pheno.model,PCA,by=c("IID"="IID"))
+
+colnames(PRS.pheno.model)<-c("FID","IID","SCORE","Sex","Age","Pheno","PC1","PC2","PC3","PC4")
 
 ##### 80% of the sample size #### 
 
@@ -239,134 +248,101 @@ fwrite(PRS.test.pheno,tmp.test.data,sep="\t",col.names=T)
 
 # Read GLM PRS Model Data
 
-mod_1 <- glm( Pheno ~ Sex+Age, data=PRS.train.pheno, family="binomial")
-mod_2 <- glm( Pheno ~ SCORE, data=PRS.train.pheno, family="binomial")
-mod_3 <- glm( Pheno ~ Sex+Age+SCORE, data=PRS.train.pheno, family="binomial")
+mod_1 <- glm( Pheno ~ SCORE, data=PRS.train.pheno, family="binomial")
+mod_2 <- glm( Pheno ~ SCORE+Age+Sex, data=PRS.train.pheno, family="binomial")
+mod_3 <- glm( Pheno ~ SCORE+Age+Sex+PC1+PC2+PC3+PC4, data=PRS.train.pheno, family="binomial")
 
 
 ##################################### Model 1 (Base only) #####################################
 
-library(pROC)
+  library(pROC)
 
-# Get probability of model
-train_1_prob = predict(mod_1, data=PRS.train.pheno ,type='response')
-
-# Get threshold of probability for calssification
-threshold_train_1 <- roc(response=PRS.train.pheno$Pheno, predictor=train_1_prob)
-threshold_train_1_df <-coords(threshold_train_1, "best","threshold",best.method = "youden")
-
-# Make prediction of classification
-train_1_result = ifelse(train_1_prob > threshold_train_1_df$threshold,2,1)
-
-# Making table on the train set.
-train_1_tab = table(predicted = train_1_result, actual = PRS.train.pheno$Pheno)
-
-# Calculate ROC 
-train_1_roc = roc(PRS.train.pheno$Pheno ~ train_1_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
-
-## Predicting Test Data
-test_1_prob = predict(mod_1,newdata=PRS.test.pheno,type='response')
-
-# Get threshold of probability for calssification
-threshold_test_1 <- roc(response=PRS.test.pheno$Pheno, predictor=test_1_prob)
-threshold_test_1_df <-coords(threshold_test_1, "best", best.method = "youden")
-
-test_1_result = ifelse(test_1_prob > threshold_test_1_df$threshold,2,1)
-
-library(caret)
-
-## Plot
-test_1_prob = predict(mod_1, newdata = PRS.test.pheno, type = "response")
-test_1_roc = roc(PRS.test.pheno$Pheno ~ test_1_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  ## Train
+  train_1_prob = predict(mod_1, data=PRS.train.pheno ,type='response')
+  train_1_roc = roc(PRS.train.pheno$Pheno ~ train_1_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  
+  ## Test
+  test_1_prob = predict(mod_1, newdata = PRS.test.pheno, type = "response")
+  test_1_roc = roc(PRS.test.pheno$Pheno ~ test_1_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
 
 
 ##################################### Model 2 (PRS only) #####################################
 
-library(pROC)
+  ## Train
+  train_2_prob = predict(mod_2, data=PRS.train.pheno ,type='response')
+  train_2_roc = roc(PRS.train.pheno$Pheno ~ train_2_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  
+  ## Test
+  test_2_prob = predict(mod_2, newdata = PRS.test.pheno, type = "response")
+  test_2_roc = roc(PRS.test.pheno$Pheno ~ test_2_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
 
-# Get probability of model
-train_2_prob = predict(mod_2, data=PRS.train.pheno ,type='response')
-
-# Get threshold of probability for calssification
-threshold_train_2 <- roc(response=PRS.train.pheno$Pheno, predictor=train_2_prob)
-threshold_train_2_df <-coords(threshold_train_2, "best", best.method = "youden")
-
-# Make prediction of classification
-train_2_result = ifelse(train_2_prob > threshold_train_2_df$threshold,2,1)
-
-# Making table on the train set.
-train_2_tab = table(predicted = train_2_result, actual = PRS.train.pheno$Pheno)
-
-# Calculate ROC 
-train_2_roc = roc(PRS.train.pheno$Pheno ~ train_2_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
-
-# Predicting Test Data
-test_2_prob = predict(mod_2,newdata=PRS.test.pheno,type='response')
-
-# Get threshold of probability for calssification
-threshold_test_2 <- roc(response=PRS.test.pheno$Pheno, predictor=test_2_prob)
-threshold_test_2_df <-coords(threshold_test_2, "best", best.method = "youden")
-
-test_2_result = ifelse(test_2_prob > threshold_test_2_df$threshold,2,1)
-
-library(caret)
-
-## Plot
-test_2_prob = predict(mod_2, newdata = PRS.test.pheno, type = "response")
-test_2_roc = roc(PRS.test.pheno$Pheno ~ test_2_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
-
-##################################### Model 3 Base + PRS ####################################
-
-library(pROC)
+##################################### Model 3 (Full model) #####################################
 
 
-# Get probability of model
-train_3_prob = predict(mod_3, data=PRS.train.pheno ,type='response')
+  ## Train
+  train_3_prob = predict(mod_3, data=PRS.train.pheno ,type='response')
+  train_3_roc = roc(PRS.train.pheno$Pheno ~ train_3_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  
+  ## Test
+  test_3_prob = predict(mod_3, newdata = PRS.test.pheno, type = "response")
+  test_3_roc = roc(PRS.test.pheno$Pheno ~ test_3_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
 
-# Get threshold of probability for calssification
-threshold_train_3 <- roc(response=PRS.train.pheno$Pheno, predictor=train_3_prob)
-threshold_train_3_df <-coords(threshold_train_3, "best", best.method = "youden")
+######################## AUC plot Table ################################
 
-# Make prediction of classification
-train_3_result = ifelse(train_3_prob > threshold_train_3_df$threshold,2,1)
+## Table Output
 
-# Making table on the train set.
-train_3_tab = table(predicted = train_3_result, actual = PRS.train.pheno$Pheno)
+#### Table 1 ######
 
-# Calculate ROC 
-train_3_roc = roc(PRS.train.pheno$Pheno ~ train_3_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  out_a_1=coords(test_1_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
 
-## Predicting Test Data
-test_3_prob = predict(mod_3,newdata=PRS.test.pheno,type='response')
+  #Get the first row to prevent error of 1 rows of metrics
+  out_a_1=out_a_1[1,]
+  out_b_1=as.data.frame(auc(test_1_roc))
 
-# Get threshold of probability for calssification
-threshold_test_3 <- roc(response=PRS.test.pheno$Pheno, predictor=test_3_prob)
-threshold_test_3_df <-coords(threshold_test_3, "best", best.method = "youden")
+  colnames(out_b_1)<-"AUC"
+  out_final_1<-cbind(out_a_1,out_b_1)
 
-test_3_result = ifelse(test_3_prob > threshold_test_3_df$threshold,2,1)
+  out_final_1$Model<-c("PRS model")
 
-library(caret)
 
-## Plot
-test_3_prob = predict(mod_3, newdata = PRS.test.pheno, type = "response")
-test_3_roc = roc(PRS.test.pheno$Pheno ~ test_3_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+#### Table 2 ######
 
-###################################### Three model AUCs #####################################
-cat('\n')
-cat('(Train) AUC of Base Model is:', auc(train_1_roc))
-cat('\n')
-cat('\n(Train) AUC of PRS Model is:', auc(train_2_roc))
-cat('\n')
-cat('\n(Train) AUC of Base + PRS Model is:', auc(train_3_roc))
-cat('\n')
-cat('\n(Test) AUC of Base Model is:', auc(test_1_roc))
-cat('\n')
-cat('\n(Test) AUC of PRS Model is:', auc(test_2_roc))
-cat('\n')
-cat('\n(Test) AUC of Base + PRS Model is:', auc(test_3_roc))
-cat('\n')
-cat('\n')
-cat('\n')
+  out_a_2=coords(test_2_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
+
+  #Get the first row to prevent error of 2 rows of metrics
+  out_a_2=out_a_2[1,]
+  out_b_2=as.data.frame(auc(test_2_roc))
+
+  colnames(out_b_2)<-"AUC"
+  out_final_2<-cbind(out_a_2,out_b_2)
+
+  out_final_2$Model<-c("PRS + Age + Sex")
+
+#### Table 3 ######
+
+  out_a_3=coords(test_3_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
+
+  #Get the first row to prevent error of 3 rows of metrics
+  out_a_3=out_a_3[1,]
+  out_b_3=as.data.frame(auc(test_3_roc))
+
+  colnames(out_b_3)<-"AUC"
+  out_final_3<-cbind(out_a_3,out_b_3)
+
+  out_final_3$Model<-c("Full model (PRS + Age + Sex + PCs)")
+
+########################
+
+  out_final<-rbind(out_final_1,out_final_2,out_final_3)
+  
+  out_final<-out_final[,c(8,7,2:6,1)]
+  head(out_final)
+
+  tmp_out<-paste0('./PRS/plot/',PLOT_OUT,'.AUCs.Performance.txt',collapse = '')
+  
+  fwrite(out_final,tmp_out,sep="\t",col.names = T)
+
+
 ### Model plot ###
 
 tmp_model_plot<-paste0('./PRS/plot/',PLOT_OUT,'.AUCs.png',collapse = '')
@@ -378,19 +354,87 @@ test_2_roc = roc(PRS.test.pheno$Pheno ~ test_2_prob)
 test_3_roc = roc(PRS.test.pheno$Pheno ~ test_3_prob)
 
 plot(test_1_roc,print.auc = TRUE, print.auc.y = .4)
-plot(test_2_roc,print.auc = TRUE, print.auc.y = .3 ,add=TRUE, col='red',)
-plot(test_3_roc,print.auc = TRUE, print.auc.y = .2 ,add=TRUE, col='blue')
+plot(test_2_roc,print.auc = TRUE, print.auc.y = .3 , col='red' ,add=TRUE)
+plot(test_3_roc,print.auc = TRUE, print.auc.y = .2 , col='blue',add=TRUE)
 
-text(0.15, .4, paste("Base Model"))
-text(0.15, .3, paste("PRS Model"))
-text(0.15, .2, paste("Base Model + PRS"))
+text(0.15, .4, paste("PRS model"))
+text(0.15, .3, paste("PRS + Age + Sex"))
+text(0.15, .2, paste("PRS + Age + Sex + PCs"))
+
 cat('\n')
-cat('AUC of Base Model is:', auc(test_1_roc))
+cat('\nAUC of PRS Model is:', auc(test_1_roc))
 cat('\n')
-cat('\nAUC of PRS Model is:', auc(test_2_roc))
+cat('\nAUC of PRS + Age + Sex Model is:', auc(test_2_roc))
 cat('\n')
-cat('\nAUC of Base Model+PRS is:', auc(test_3_roc))
-cat('\n')
+cat('\nAUC of Full Model is:', auc(test_3_roc))
 cat('\n')
 dev.off()
-cat('\n')
+
+######################## Prevalence plot and Table ################################
+
+Prevalence.plot<-PRS.pheno.plot
+Prevalence.plot$Pheno<-recode_factor(Prevalence.plot$Pheno,"Control"="0","Case"="1")
+Prevalence.plot$Pheno<-as.numeric(as.character(Prevalence.plot$Pheno))
+Prevalence.plot$percentile<-as.factor(Prevalence.plot$percentile)
+Prevalence.plot$PrevalenceGroup<-ntile(Prevalence.plot$SCORE,100)
+
+PrevalencePlot_data<-Prevalence.plot %>% 
+group_by(PrevalenceGroup) %>% 
+summarise(Prevalence = sum(Pheno)/n())
+
+tmp_PrevalencePlot_data<-paste0('./PRS/plot/',PLOT_OUT,'.Prevalence-data.txt')
+fwrite(PrevalencePlot_data,tmp_PrevalencePlot_data,sep="\t",col.names = T)
+
+
+tmp_Prevalence_plot<-paste0('./PRS/plot/',PLOT_OUT,'.Prevalence.png')
+      
+Prevalence_plot<-ggplot(PrevalencePlot_data, aes(x=PrevalenceGroup, y=Prevalence)) + 
+labs( x = "Percentile of PRS", y = "Prevalence",title ="Prevalence of Disease")+
+geom_point()
+
+ggsave(Prevalence_plot,file=tmp_Prevalence_plot,height = 8,width  = 8)
+
+######################## Cumulative Risk plot and Table ################################
+
+Cumulative.plot<-PRS.pheno.plot
+Cumulative.plot$Pheno<-recode_factor(Cumulative.plot$Pheno,"Control"="0","Case"="1")
+Cumulative.plot$Pheno<-as.numeric(as.character(Cumulative.plot$Pheno))
+Cumulative.plot$percentile<-as.factor(Cumulative.plot$percentile)
+Cumulative.plot$PrevalenceGroup<-ntile(Cumulative.plot$SCORE,100)
+
+Cumulative.plot<-Cumulative.plot[order(Cumulative.plot$SCORE),]
+Cumulative.plot$Index<-1:nrow(Cumulative.plot)
+cumplot_glm <- fitSmoothHazard(Pheno ~ Age+SCORE,data = Cumulative.plot, time = "Age", ratio = 10)
+
+#summary(cumplot_glm)
+
+group_25<-subset(Cumulative.plot,Cumulative.plot$PrevalenceGroup=="25")
+group_50<-subset(Cumulative.plot,Cumulative.plot$PrevalenceGroup=="50")
+group_75<-subset(Cumulative.plot,Cumulative.plot$PrevalenceGroup=="75")
+group_100<-subset(Cumulative.plot,Cumulative.plot$PrevalenceGroup=="100")
+
+sample_25<-min(group_25$Index)
+sample_50<-min(group_50$Index)
+sample_75<-min(group_75$Index)
+sample_100<-min(group_100$Index)
+
+smooth_risk_model <- absoluteRisk(object = cumplot_glm, newdata = Cumulative.plot[c(sample_25,sample_50,sample_75,sample_100),])
+
+risk_data<-as.data.frame(smooth_risk_model)
+colnames(risk_data)<-c("Age-Time","PRS-25%","PRS-50%","PRS-75%","PRS-100%")
+
+tmp_risk_data<-paste0('./PRS/plot/',PLOT_OUT,'.Cumulative_Risk-data.txt')
+fwrite(risk_data,tmp_risk_data,sep="\t",col.names = T,row.names=F)
+
+tmp_risk_plot<-paste0('./PRS/plot/',PLOT_OUT,'.Cumulative_Risk.png')
+
+smooth_risk <- absoluteRisk(object = cumplot_glm, newdata = Cumulative.plot[c(sample_25,sample_50,sample_75,sample_100),])
+
+png(tmp_risk_plot,height = 800,width  = 800)
+fullplot<-plot(smooth_risk,
+      id.names = c("PRS 25%","PRS 50%","PRS 75%","PRS 100%"), 
+      legend.title = "PRS", 
+      xlab = "Age (Years Old)", 
+      ylab = "Cumulative Incidence (%)")
+print(fullplot)
+dev.off()

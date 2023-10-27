@@ -27,8 +27,8 @@ if [ $CHIP_TYPE -eq 1 ]; then
 	parallel --bar -j 10 \
     	./tools/plink2 \
         	--bfile ${BFILE} \
-			--maf 0.01 \
         	--chr {} \
+			--maf 0.01 \
         	--pheno-name Pheno \
         	--covar ${PHENO_COV} \
         	--covar-name Sex,Age \
@@ -51,8 +51,8 @@ elif [ $CHIP_TYPE -eq 2 ]; then
 	parallel --bar -j 10 \
     	./tools/plink2 \
         	--bfile ${BFILE} \
-			--maf 0.01 \
         	--chr {} \
+			--maf 0.01 \
         	--pheno-name Pheno \
         	--covar ${PHENO_COV} \
         	--covar-name Sex,Age \
@@ -76,3 +76,5 @@ elif [ $CHIP_TYPE -eq 2 ]; then
 	echo "./GWAS/Merge_${GWAS_OUTPUT}_GWAS.Pheno.glm.logistic"
 	echo ""
 fi
+
+# 

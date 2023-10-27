@@ -30,7 +30,6 @@ Rscript ./tools/PRSice2/PRSice.R \
 --pheno-col Pheno \
 --cov ${PHENO} \
 --cov-col Age,Sex \
---bar-levels 5e-06,5e-05,0.0001,0.001,0.05,0.1,0.2,0.3,0.4,0.5,1 \
 --stat OR \
 --or \
 --A1 A1 \
@@ -39,9 +38,10 @@ Rscript ./tools/PRSice2/PRSice.R \
 --thread 64 \
 --print-snp \
 --seed 123456789 \
---quantile 10 \
---no-default \
 --snp SNP \
 --clump-r2 ${R2} \
---out ./PRS/result/${PRS_OUTPUT} \
+--out ./PRS/result/${PRS_OUTPUT} 
+#--quantile 10 \
+#--no-default \
 #--extract ./PRS/result/${PRS_OUTPUT}.valid
+#--bar-levels 5e-08,5e-07,5e-06,5e-05,0.0001,0.001,0.05,0.1,0.2,0.3,0.4,0.5,1 \

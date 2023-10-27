@@ -36,7 +36,7 @@ tmp_manhattan=paste0('./GWAS/plot/',PLOT_OUT,'.manhattan.png',collapse = '')
 
 png(file=tmp_manhattan, width = 2000,height = 1000,pointsize = 18)
 par(cex=1.2)
-color_set <-c("#8DA0CB","#E78AC3","#A6D854","#FFD92F","#E5C494","#66C2A5","#FC8D62")
+color_set <-c("#8DA0CB","#FC8D62")
 manhattan(manhattan_data_nosex,
           col = color_set,
           suggestiveline = -log10(1e-05),

@@ -75,8 +75,8 @@ cat('\n')
 tmp_no_chip=paste0('./output/',Output_name,'-no-chip.txt',collapse = '')
 tmp_have_chip=paste0('./output/',Output_name,'-have-chip.txt',collapse = '')
 
-fwrite(no_chip,tmp_no_chip,sep="\t",col.names = T)
-fwrite(have_chip,tmp_have_chip, sep="\t",col.names = T)
+fwrite(no_chip,tmp_no_chip,sep="\t",col.names = T,bom=T)
+fwrite(have_chip,tmp_have_chip, sep="\t",col.names = T,bom=T)
 
 
 # Make the GWAS-ready Pheno table
@@ -118,6 +118,8 @@ cat('\n')
 # Perform Sex Age matching
 
 have_chip_GWAS$Pheno<-recode_factor(have_chip_GWAS$Pheno,"1"="0","2"="1")
+
+head(have_chip_GWAS)
 
 have_chip_GWAS.match <- matchit(Pheno ~ Age + Sex, data = have_chip_GWAS, method="nearest", ratio=Matching_Ratio)
 have_chip_GWAS.match.df <-match.data(have_chip_GWAS.match)
