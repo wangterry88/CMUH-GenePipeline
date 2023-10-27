@@ -82,3 +82,9 @@ cat('\n')
 cat('Significant SNP data is output at:',tmp_PRS)
 cat('\n')
 cat('\n')
+
+### Output Gene-info summary data
+
+annot_data<-manhattan_data_nosex[,c("CHR","BP","SNP","OR","P")]
+tmp_annot=paste0('./GWAS/',PRS_OUT,'.GWAS.annot.data.txt',collapse = '')
+fwrite(annot_data,tmp_annot,sep="\t",col.names=T)

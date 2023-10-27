@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Enter the SNP file (Full directory)(CHR SNP BP): "
-echo "Ex: ./GWAS/test.PRS.Sig-0.05.txt"
+echo "Ex: ./GWAS/test.GWAS.annot.data.txt"
 read INPUT 
 
 echo "Enter the SNP file name(Short name): "
