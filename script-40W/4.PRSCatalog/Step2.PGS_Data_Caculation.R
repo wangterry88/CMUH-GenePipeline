@@ -1,7 +1,4 @@
 setwd("./")
-
-#args = commandArgs(trailingOnly=TRUE)
-
 system('free -m')
 
 ############ Required Packages ######################
@@ -22,21 +19,12 @@ library(casebase)
 cat(prompt="Input your PGS result table (Full directory)")
 cat('\n')
 cat("(Ex: ./output/PRS_of_interest/Example.txt):" )
+cat('\n')
 Input_result<-readLines(con="stdin",1)
 
-cat(prompt="Please input your matching ratio (1-10):")
-Matching_Ratio_input<-readLines(con="stdin",1)
+############# Read PC Data ###############
 
-if (as.numeric(Matching_Ratio_input) > 10){
-  print("Your matching ratio is too high, we will use default ratio: 4")
-  Matching_Ratio=4
-}else if(as.numeric(Matching_Ratio_input) <= 0) {
-  print("Your matching ratio must be a positive number, we will use default ratio: 4")
-  Matching_Ratio=4
-}else {
-  cat("Your matching ratio is: ", Matching_Ratio_input)
-  Matching_Ratio=as.numeric(Matching_Ratio_input)
-}
+PCA<-fread("./data/PCA/TPMI_40W_PC1-4.txt",sep="\t",header=T)
 
 ######## Read User input table and perform sex age match ########
 
@@ -56,30 +44,73 @@ cat('Case Num. of user input:',nrow(num_case))
 cat('\n')
 cat('\n')
 
-PRS.result.prsice.match <- matchit(Pheno ~ Age+Sex, data = PRS.result.prsice, method="nearest", ratio=Matching_Ratio)
-PRS.result.prsice.match.df <-match.data(PRS.result.prsice.match)
+cat(prompt="Please input your matching ratio (1-10):")
+Matching_Ratio_input<-readLines(con="stdin",1)
 
-num_ctrl_match<-subset(PRS.result.prsice.match.df ,PRS.result.prsice.match.df$Pheno=="1")
-num_case_match<-subset(PRS.result.prsice.match.df ,PRS.result.prsice.match.df$Pheno=="2")
+if (as.numeric(Matching_Ratio_input) > 10){
+  print("Your matching ratio is too high, we will use default ratio: 4")
+  Matching_Ratio=4
+}else if(as.numeric(Matching_Ratio_input) <= 0) {
+  print("Your matching ratio must be a positive number, we will use default ratio: 4")
+  Matching_Ratio=4
+}else {
+  cat("Your matching ratio is: ", Matching_Ratio_input)
+  Matching_Ratio=as.numeric(Matching_Ratio_input)
+}
+
+############# To select are we going to perform case control matching or not ##############
 
 cat('\n')
+cat(prompt="Select the Plot data type ( [1]: Perform Matching / [2]: Not Perform matching ): ")
 cat('\n')
-cat('Control Num. after sex-age-matching:',nrow(num_ctrl_match))
-cat('\n')
-cat('\n')
-cat('Case Num. after sex-age-matching:',nrow(num_case_match))
-cat('\n')
-cat('\n')
+matching_type<-readLines(con="stdin",1)
 
+if (matching_type == "1"){
+  print("Your selected data type is: Matching data")
+  cat("Your matching ratio is: ", Matching_Ratio)
+  PRS.result.prsice.match <- matchit(Pheno ~ Age+Sex, data = PRS.result.prsice, method="nearest", ratio=Matching_Ratio)
+  PRS.result.prsice.match.df <-match.data(PRS.result.prsice.match)
+  PRS.result.df=PRS.result.prsice.match.df
+  num_ctrl_match<-subset(PRS.result.prsice.match.df ,PRS.result.prsice.match.df$Pheno=="1")
+  num_case_match<-subset(PRS.result.prsice.match.df ,PRS.result.prsice.match.df$Pheno=="2")  
+  cat('\n')
+  cat('\n')
+  cat('Control Num. after sex-age-matching:',nrow(num_ctrl_match))
+  cat('\n')
+  cat('\n')
+  cat('Case Num. after sex-age-matching:',nrow(num_case_match))
+  cat('\n')
+  cat('\n')
+
+}else if(matching_type == "2") {
+  PRS.result.df=PRS.result.prsice
+  print("Your selected data type is: No Matching data")
+
+}else {
+  print("(Default) Your selected data type is: Matching data")
+  cat("Your matching ratio is: ", Matching_Ratio)
+  PRS.result.prsice.match <- matchit(Pheno ~ Age+Sex, data = PRS.result.prsice, method="nearest", ratio=Matching_Ratio)
+  PRS.result.prsice.match.df <-match.data(PRS.result.prsice.match)
+  PRS.result.df=PRS.result.prsice.match.df
+  num_ctrl_match<-subset(PRS.result.prsice.match.df ,PRS.result.prsice.match.df$Pheno=="1")
+  num_case_match<-subset(PRS.result.prsice.match.df ,PRS.result.prsice.match.df$Pheno=="2")
+  cat('\n')
+  cat('\n')
+  cat('Control Num. after sex-age-matching:',nrow(num_ctrl_match))
+  cat('\n')
+  cat('\n')
+  cat('Case Num. after sex-age-matching:',nrow(num_case_match))
+  cat('\n')
+  cat('\n')
+}
 
 ############## Grep column names with "PGS" ####################
 
 # Grep column names with "PGS"
 
 pattern = "PGS"
-pattern_PGS <- PRS.result.prsice.match.df[,grep(pattern = pattern, colnames(PRS.result.prsice.match.df))]
-list_PGS<-colnames(PRS.result.prsice.match.df)[pattern_PGS]
-
+pattern_PGS <- PRS.result.df[,grep(pattern = pattern, colnames(PRS.result.df))]
+list_PGS<-colnames(PRS.result.df)[pattern_PGS]
 
 ############### Output related PGS lists ##################
 
@@ -87,26 +118,6 @@ list_PGS_output<-as.data.frame(t(list_PGS))
 tmp_list_PGS_output<-paste0("./output/Related_PGSID_List.txt")
 
 fwrite(list_PGS_output,tmp_list_PGS_output,sep="|",col.names = F)
-
-############# To select are we going to perform case control matching or not ##############
-
-cat('\n')
-cat(prompt="Select the Plot data type ( [1]: Perform Matching / [2]: Not Perform matching ): ")
-
-matching_type<-readLines(con="stdin",1)
-
-if (matching_type == "1"){
-  PRS.result.df=PRS.result.prsice.match.df
-  print("Your selected data type is: Matching data")
-  cat("Your matching ratio is: ", Matching_Ratio)
-}else if(matching_type == "2") {
-  PRS.result.df=PRS.result.prsice
-  print("Your selected data type is: No Matching data")
-}else {
-  PRS.result.df=PRS.result.prsice.match.df
-  print("(Default) Your selected data type is: Matching data")
-  cat("Your matching ratio is: ", Matching_Ratio)
-}
 
 
 ######## For loop Create dirctory ########
@@ -285,9 +296,15 @@ for (j in 1:length(PGS_NUM)){
 
 ############################### Ready GLM PRS Model Data (Drop NA's) ########################################
 
-  PRS.pheno.model=PRS.result.model
+  PRS.pheno.model=PRS.pheno.plot
+  
+  print(PRS.pheno.model,10)
+  print(PCA,10)
+  
+  PRS.pheno.model<-inner_join(PRS.pheno.model,PCA,by=c("IID"="IID"))
   PRS.pheno.model=na.omit(PRS.pheno.model)
-  colnames(PRS.pheno.model)<-c("PatientID","IID","Sex","Age","Pheno","SCORE")
+
+  colnames(PRS.pheno.model)<-c("PatientID","IID","Sex","Age","Pheno","SCORE","percentile","PC1","PC2","PC3","PC4")
   cat('\n')
   cat('\n')
   cat('\n ###########################################')
@@ -320,82 +337,129 @@ for (j in 1:length(PGS_NUM)){
   tmp.test.data<-paste0('./output/',PGS_NUM[j],'/plot/',PGS_NUM[j],'.AUC.test-data.txt',collapse = '')
   fwrite(PRS.test.pheno,tmp.test.data,sep="\t",col.names=T)
 
-### Summary of data ####
-  cat('\n')
-  cat('All data of PRS caculation:')
-  cat('\n')
-  cat('\n')
-  summary(PRS.pheno.model)
-  cat('\n')
-  cat('\n')
-  cat('Train data of PRS caculation:')
-  cat('\n')
-  cat('\n')
-  summary(PRS.train.pheno)
-  cat('\n')
-  cat('\n')
-  cat('Test data of PRS caculation:')
-  cat('\n')
-  cat('\n')
-  summary(PRS.test.pheno)
-  cat('\n')
-  cat('\n')
 
-##################################### Model 2 (PRS only) #####################################
+##################################### Models #####################################
 
   library(pROC)
 
-  mod_2 <- glm( Pheno ~ SCORE, data=PRS.train.pheno, family="binomial")
+  mod_1 <- glm( Pheno ~ SCORE, data=PRS.train.pheno, family="binomial")
+  mod_2 <- glm( Pheno ~ SCORE+Age+Sex, data=PRS.train.pheno, family="binomial")
+  mod_3 <- glm( Pheno ~ SCORE+Age+Sex+PC1+PC2+PC3+PC4, data=PRS.train.pheno, family="binomial")
 
-# Get probability of model
+##################################### Model 1 (Base only) #####################################
 
+  ## Train
+  train_1_prob = predict(mod_1, data=PRS.train.pheno ,type='response')
+  train_1_roc = roc(PRS.train.pheno$Pheno ~ train_1_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  
+  ## Test
+  test_1_prob = predict(mod_1, newdata = PRS.test.pheno, type = "response")
+  test_1_roc = roc(PRS.test.pheno$Pheno ~ test_1_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+
+##################################### Model 2 (PRS only) #####################################
+
+  ## Train
   train_2_prob = predict(mod_2, data=PRS.train.pheno ,type='response')
   train_2_roc = roc(PRS.train.pheno$Pheno ~ train_2_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
-
-  ##################################################################################################################
-
+  
   ## Test
   test_2_prob = predict(mod_2, newdata = PRS.test.pheno, type = "response")
   test_2_roc = roc(PRS.test.pheno$Pheno ~ test_2_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
 
- ## Plot
- # plot(test_2_roc,print.auc = TRUE, print.auc.y = .3 , col='red')
- # text(0.15, .3, paste("PRS Model"))
+##################################### Model 3 (Full model) #####################################
+
+
+  ## Train
+  train_3_prob = predict(mod_3, data=PRS.train.pheno ,type='response')
+  train_3_roc = roc(PRS.train.pheno$Pheno ~ train_3_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
+  
+  ## Test
+  test_3_prob = predict(mod_3, newdata = PRS.test.pheno, type = "response")
+  test_3_roc = roc(PRS.test.pheno$Pheno ~ test_3_prob, plot = FALSE, print.auc = TRUE, legacy.axes=TRUE)
 
 
 ######################## AUC plot Table ################################
 
 ## Table Output
 
-  out_a=coords(test_2_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
+#### Table 1 ######
+
+  out_a_1=coords(test_1_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
+
+  #Get the first row to prevent error of 1 rows of metrics
+  out_a_1=out_a_1[1,]
+  out_b_1=as.data.frame(auc(test_1_roc))
+
+  colnames(out_b_1)<-"AUC"
+  out_final_1<-cbind(out_a_1,out_b_1)
+
+  out_final_1$Model<-c("PRS model")
+
+
+#### Table 2 ######
+
+  out_a_2=coords(test_2_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
 
   #Get the first row to prevent error of 2 rows of metrics
-  out_a=out_a[1,]
-  out_b=as.data.frame(auc(test_2_roc))
+  out_a_2=out_a_2[1,]
+  out_b_2=as.data.frame(auc(test_2_roc))
 
-  colnames(out_b)<-"AUC"
-  out_final<-cbind(out_a,out_b)
+  colnames(out_b_2)<-"AUC"
+  out_final_2<-cbind(out_a_2,out_b_2)
 
-  tmp_out<-paste0('./output/',PGS_NUM[j],'/plot/',PGS_NUM[j],'.Performance.txt',collapse = '')
+  out_final_2$Model<-c("PRS + Age + Sex")
+
+#### Table 3 ######
+
+  out_a_3=coords(test_3_roc, "best", ret = c("auc","threshold", "specificity", "sensitivity", "accuracy","precision", "recall"), transpose = FALSE, print.auc = TRUE)
+
+  #Get the first row to prevent error of 3 rows of metrics
+  out_a_3=out_a_3[1,]
+  out_b_3=as.data.frame(auc(test_3_roc))
+
+  colnames(out_b_3)<-"AUC"
+  out_final_3<-cbind(out_a_3,out_b_3)
+
+  out_final_3$Model<-c("Full model (PRS + Age + Sex + PCs)")
+
+########################
+
+  out_final<-rbind(out_final_1,out_final_2,out_final_3)
+  
+  out_final<-out_final[,c(8,7,2:6,1)]
+  
+  head(out_final)
+
+  tmp_out<-paste0('./output/',PGS_NUM[j],'/plot/',PGS_NUM[j],'.AUCs.Performance.txt',collapse = '')
+  
   fwrite(out_final,tmp_out,sep="\t",col.names = T)
 
+########################### Model plot ###########################
 
-### Model plot ###
+tmp_model_plot<-paste0('./output/',PGS_NUM[j],'/plot/',PGS_NUM[j],'.AUCs.png',collapse = '')
 
-    tmp_model_plot<-paste0('./output/',PGS_NUM[j],'/plot/',PGS_NUM[j],'.AUCs.png',collapse = '')
+png(tmp_model_plot,height = 500,width  = 500)
 
-    png(tmp_model_plot,height = 500,width  = 500)
+test_1_roc = roc(PRS.test.pheno$Pheno ~ test_1_prob)
+test_2_roc = roc(PRS.test.pheno$Pheno ~ test_2_prob)
+test_3_roc = roc(PRS.test.pheno$Pheno ~ test_3_prob)
 
-    test_2_roc = roc(PRS.test.pheno$Pheno ~ test_2_prob)
-    plot(test_2_roc,print.auc = TRUE, print.auc.y = .3 , col='red')
+plot(test_1_roc,print.auc = TRUE, print.auc.y = .4)
+plot(test_2_roc,print.auc = TRUE, print.auc.y = .3 , col='red' ,add=TRUE)
+plot(test_3_roc,print.auc = TRUE, print.auc.y = .2 , col='blue',add=TRUE)
 
-    text(0.15, .3, paste("PRS Model"))
-    cat('\n')
-    cat('\n')
-    cat('\nAUC of PRS Model is:', auc(test_2_roc))
-    cat('\n')
-    dev.off()
-    cat('\n')
+text(0.15, .4, paste("PRS model"))
+text(0.15, .3, paste("PRS + Age + Sex"))
+text(0.15, .2, paste("PRS + Age + Sex + PCs"))
+
+cat('\n')
+cat('\nAUC of PRS Model is:', auc(test_1_roc))
+cat('\n')
+cat('\nAUC of PRS + Age + Sex Model is:', auc(test_2_roc))
+cat('\n')
+cat('\nAUC of Full Model is:', auc(test_3_roc))
+cat('\n')
+dev.off()
 
 ################# Table 1 of PRS Sample in GLM model (Dropped NAs) #################
 
