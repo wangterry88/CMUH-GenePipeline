@@ -20,45 +20,45 @@ sh ./script/Run_GenePipeline.sh
 ```
 ## Gene Analysis Modes
 
-This package supports 5 gene analysis modes. The following sub-pipelines can also be executed separately:
+This package supports 6 gene analysis modes. The following sub-pipelines can also be executed separately:
 
 ### Phencode Patient Phenotype Selection
 
 ```sh
 sh ./script/0.Phencode/Run_TPMI_Phencode_Pipeline.sh
 ```
-### TPMI Array Chip Check
+### Mode 1: TPMI Array Chip Check
 
 ```sh
 Rscript ./script/1.TPMI-ChipCheck/Step1.PatientID_to_TPMI.R
 ```
 
-### GWAS Analysis
+### Mode 2: GWAS Analysis
 
 ```sh
 sh ./script/2.GWAS/Run_TPMI_GWAS_Pipeline.sh
 ```
 
-### GWAS and PRS Analysis
+### Mode 3: GWAS and PRS Analysis
 
 ```sh
 sh ./script/3.GWAS+PRS/Run_TPMI_GWAS_PRS_Pipeline.sh
 ```
 
 
-### PGS Catalog Calculation
+### Mode 4: PGS Catalog Calculation
 
 ```sh
 sh ./script/4.PRSCatalog/Run-TPMI-PRSCatlog-Pipeline.sh
 ```
 
-### Gene-Pathway Analysis
+### Mode 5: Gene-Pathway Analysis
 
 ```sh
 sh ./script/5.GeneAnalysis/Run_GWAS_to_Gene_Analysis.sh
 ```
 
-### SNP Analysis
+### Mode 6: SNP Analysis
 
 ```sh
 Rscript ./script/6.SNPAnalysis/Step1.GWAS_to_SNPlist.R
