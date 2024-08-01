@@ -1,45 +1,71 @@
-## GenePipeline
+# GenePipeline
 
-1. A comprehensive Linux-based package for SNP array analysis
+A comprehensive Linux-based package for SNP array analysis
 
-2. Demo of Pipeline is in `Demo.md`
+## Version
 
-3. Version: 30W version (300,000 samples pipeline) / 40W version (400,000 samples pipeline)
-  
-## To run this package: (Main pipeline)
+- **30W version**: 300,000 samples pipeline
+- **40W version**: 400,000 samples pipeline
 
-`sh ./script/Run_GenePipeline.sh`
+## Demo
 
-### 5 Gene Analysis mode of this package
+For a demo of the pipeline, refer to `Demo.md`.
 
-The following sub-pipline can also be execute separately:
+## Running the Main Pipeline
 
-0. Phencode Patient Phenotype selection
+To run the main pipeline, execute the following command:
 
-`sh ./script/0.Phencode/Run_TPMI_Phencode_Pipeline.sh`
+```sh
+sh ./script/Run_GenePipeline.sh
+```
+## Gene Analysis Modes
 
-1. TPMI Array Chip Check
+This package supports 5 gene analysis modes. The following sub-pipelines can also be executed separately:
 
-`Rscript ./script/1.TPMI-ChipCheck/Step1.PatientID_to_TPMI.R`
+### Phencode Patient Phenotype Selection
 
-2. GWAS Analysis
+```sh
+sh ./script/0.Phencode/Run_TPMI_Phencode_Pipeline.sh
+```
+### TPMI Array Chip Check
 
-`sh ./script/2.GWAS/Run_TPMI_GWAS_Pipeline.sh`
+```sh
+Rscript ./script/1.TPMI-ChipCheck/Step1.PatientID_to_TPMI.R
+```
 
-3. GWAS and PRS Analysis
+### GWAS Analysis
 
-`sh ./script/3.GWAS+PRS/Run_TPMI_GWAS_PRS_Pipeline.sh`
+```sh
+sh ./script/2.GWAS/Run_TPMI_GWAS_Pipeline.sh
+```
 
-4. PGS Catalog Calculation
+### GWAS and PRS Analysis
 
-`sh ./script/4.PRSCatalog/Run-TPMI-PRSCatlog-Pipeline.sh`
+```sh
+sh ./script/3.GWAS+PRS/Run_TPMI_GWAS_PRS_Pipeline.sh
+```
 
-5. Gene-Pathway Analysis
+### GWAS and PRS Analysis
 
-`sh ./script/5.GeneAnalysis/Run_GWAS_to_Gene_Analysis.sh`
+```sh
 
-6. SNP Analysis
+```
 
-`Rscript ./script/6.SNPAnalysis/Step1.GWAS_to_SNPlist.R`
+### PGS Catalog Calculation
 
-`sh ./script/6.SNPAnalysis/Step2.Bfile_to_vcf_table1.sh`
+```sh
+sh ./script/4.PRSCatalog/Run-TPMI-PRSCatlog-Pipeline.sh
+```
+
+### Gene-Pathway Analysis
+
+```sh
+sh ./script/5.GeneAnalysis/Run_GWAS_to_Gene_Analysis.sh
+```
+
+### SNP Analysis
+
+```sh
+Rscript ./script/6.SNPAnalysis/Step1.GWAS_to_SNPlist.R
+sh ./script/6.SNPAnalysis/Step2.Bfile_to_vcf_table1.sh
+```
