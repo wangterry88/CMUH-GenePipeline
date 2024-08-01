@@ -45,11 +45,6 @@ sh ./script/2.GWAS/Run_TPMI_GWAS_Pipeline.sh
 sh ./script/3.GWAS+PRS/Run_TPMI_GWAS_PRS_Pipeline.sh
 ```
 
-### GWAS and PRS Analysis
-
-```sh
-
-```
 
 ### PGS Catalog Calculation
 
